@@ -21,7 +21,7 @@ locals {
 
 resource "google_project_service" "apis" {
   for_each = local.required_apis
-  
+
   provider = google
   project  = var.project
   service  = each.value
@@ -96,4 +96,21 @@ resource "google_composer_environment" "airflow_environment" {
     env     = "dev"
     service = "airflow"
   }
+}
+
+# ~~~~~~~~~~ Secrets Manager ~~~~~~~~~~
+
+resource "google_secret_manager_secret" "secret-project-id" {
+  secret_id = "gcp-project-id"
+
+  replication {
+    auto {}
+  }
+}
+
+
+resource "google_secret_manager_secret_version" "secret-project-id" {
+  secret = google_secret_manager_secret.secret-project-id.id
+
+  secret_data = "personal-data-stack"
 }
