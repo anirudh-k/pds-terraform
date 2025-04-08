@@ -1,9 +1,30 @@
+resource "google_project" "personal_data_stack" {
+  auto_create_network = true
+  billing_account     = "01886D-30C822-5FBA01"
+  deletion_policy     = "PREVENT"
+  folder_id           = null
+  labels              = {}
+  name                = "Personal Data Stack"
+  org_id              = null
+  project_id          = "personal-data-stack"
+  tags                = null
+}
+
 # ~~~~~~~~~~ Cloud Composer ~~~~~~~~~~
 
-resource "google_project_service" "composer_api" {
+locals {
+  required_apis = {
+    composer = "composer.googleapis.com"
+    secrets  = "secretmanager.googleapis.com"
+  }
+}
+
+resource "google_project_service" "apis" {
+  for_each = local.required_apis
+  
   provider = google
   project  = var.project
-  service  = "composer.googleapis.com"
+  service  = each.value
 
   disable_on_destroy = false
 }
