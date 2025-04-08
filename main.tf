@@ -95,8 +95,8 @@ resource "google_composer_environment" "airflow_environment" {
 
 # ~~~~~~~~~~ Secrets Manager ~~~~~~~~~~
 
-resource "google_secret_manager_secret" "secret-project-id" {
-  secret_id = "gcp-project-id"
+resource "google_secret_manager_secret" "airflow-gcp-project-id" {
+  secret_id = "airflow-variables-gcp-project-id"
 
   replication {
     auto {}
@@ -104,8 +104,8 @@ resource "google_secret_manager_secret" "secret-project-id" {
 }
 
 
-resource "google_secret_manager_secret_version" "secret-project-id" {
-  secret = google_secret_manager_secret.secret-project-id.id
+resource "google_secret_manager_secret_version" "airflow-gcp-project-id" {
+  secret = google_secret_manager_secret.airflow-gcp-project-id.id
 
   secret_data_wo = "personal-data-stack"
 }
