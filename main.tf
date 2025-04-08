@@ -47,13 +47,8 @@ resource "google_composer_environment" "airflow_environment" {
   name     = "airflow"
 
   config {
-
     software_config {
       image_version = "composer-3-airflow-2.10.2-build.12"
-    }
-
-    database_config {
-      zone = var.zone
     }
 
     workloads_config {
@@ -112,5 +107,5 @@ resource "google_secret_manager_secret" "secret-project-id" {
 resource "google_secret_manager_secret_version" "secret-project-id" {
   secret = google_secret_manager_secret.secret-project-id.id
 
-  secret_data = "personal-data-stack"
+  secret_data_wo = "personal-data-stack"
 }
