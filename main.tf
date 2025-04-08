@@ -10,6 +10,43 @@ resource "google_project" "personal_data_stack" {
   tags                = null
 }
 
+# ~~~~~~~~~~ Cloud Storage ~~~~~~~~~~
+
+resource "google_storage_bucket" "data_lake" {
+  name     = "pds-data-lake"
+  location = "US"
+  project  = var.project
+}
+
+# ~~~~~~~~~~ IAM ~~~~~~~~~~
+
+# Service Accounts
+
+resource "google_service_account" "composer_env_sa" {
+  provider     = google
+  account_id   = "composer-env-service-account"
+  display_name = "Composer Environment Service Account"
+}
+
+resource "google_project_iam_member" "composer_env_sa" {
+  provider = google
+  project  = var.project
+  member   = format("serviceAccount:%s", google_service_account.composer_env_sa.email)
+  role     = "roles/composer.worker"
+}
+
+resource "google_storage_bucket_iam_member" "data_lake_composer_viewer" {
+  bucket = google_storage_bucket.data_lake.name
+  role   = "roles/storage.objectViewer"
+  member = format("serviceAccount:%s", google_service_account.composer_env_sa.email)
+}
+
+resource "google_storage_bucket_iam_member" "data_lake_composer_writer" {
+  bucket = google_storage_bucket.data_lake.name
+  role   = "roles/storage.objectCreator"
+  member = format("serviceAccount:%s", google_service_account.composer_env_sa.email)
+}
+
 # ~~~~~~~~~~ Cloud Composer ~~~~~~~~~~
 
 locals {
@@ -27,19 +64,6 @@ resource "google_project_service" "apis" {
   service  = each.value
 
   disable_on_destroy = false
-}
-
-resource "google_service_account" "composer_env_sa" {
-  provider     = google
-  account_id   = "composer-env-service-account"
-  display_name = "Composer Environment Service Account"
-}
-
-resource "google_project_iam_member" "composer_env_sa" {
-  provider = google
-  project  = var.project
-  member   = format("serviceAccount:%s", google_service_account.composer_env_sa.email)
-  role     = "roles/composer.worker"
 }
 
 resource "google_composer_environment" "airflow_environment" {
